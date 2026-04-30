@@ -6,3 +6,6 @@
 ## 0.1.0.1 -- 2026-04-30
 
 * second version, it now parses json successfully
+## 0.1.0.2 -- 2026-04-30
+
+* third version, theres a nicer interface now, both for dx and for ux!
