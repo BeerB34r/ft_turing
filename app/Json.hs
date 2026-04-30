@@ -12,7 +12,16 @@ data JsonValue
   | Array [JsonValue]
   | Object [(JsonValue, JsonValue)]
   | Null
-  deriving (Read, Show)
+
+-- prettier printing
+
+instance Show JsonValue where
+  show (Number f) = show f
+  show (String s) = show s
+  show (Bool b) = show b
+  show (Array x) = "Array: [\n" ++ (unlines . map show) x ++ "]\n"
+  show (Object x) = "Object {\n" ++ (unlines . map (\(a, b) -> show a ++ ":" ++ show b)) x ++ "}\n"
+  show Null = "Null"
 
 -- Json parsing business logic
 
