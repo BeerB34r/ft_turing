@@ -1,0 +1,12 @@
+*
+!*/
+dist-newstyle/*
+# src files
+!*.hs
+!*.cabal
+# example machines
+!*.json
+# git stuff
+!*.md
+!LICENSE
+!.gitignore
