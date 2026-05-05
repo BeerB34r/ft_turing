@@ -22,7 +22,7 @@ help =
     >> putStrLn "\t-v, --version\t\t\tshow program version and exit"
 
 version :: IO ()
-version = putStrLn "Haskell ft_turing 0.1.1.0"
+version = putStrLn "Haskell ft_turing 0.1.1.1"
 
 parse :: [String] -> IO (String, String)
 parse ["--help"] = help >> exit

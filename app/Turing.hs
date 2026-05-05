@@ -179,6 +179,7 @@ isJsonValid =
           | isLeft . fieldIsString o $ "name" -> fieldIsString o "name"
           | isLeft . checkAlphabet $ o -> checkAlphabet o
           | isLeft . fieldIsString o $ "blank" -> fieldIsString o "blank"
+          | (/= 1) . length . fromString . head . getValue (Object o) $ "blank" -> Left ("Blank must be a single character (" ++ (show . head . getValue (Object o) $ "blank") ++ ")")
           | isLeft . fieldIsStringArray o $ "states" -> fieldIsStringArray o "states"
           | isLeft . fieldIsString o $ "initial" -> fieldIsString o "initial"
           | isLeft . fieldIsStringArray o $ "finals" -> fieldIsStringArray o "finals"
@@ -193,7 +194,7 @@ isValid m
   | nub m.states /= m.states = Left ("States contains duplicates (" ++ (show . nub $ (m.states \\ nub m.states)) ++ ")")
   | nub m.finals /= m.finals = Left ("Finals contains duplicates (" ++ (show . nub $ (m.finals \\ nub m.finals)) ++ ")")
   -- subsets
-  | m.blank `notElem` m.alphabet = Left ("Blank (" ++ [m.blank] ++ ") is not part of the alphabet (" ++ m.alphabet ++ ")")
+  | m.blank `notElem` m.alphabet = Left ("Blank (" ++ [m.blank] ++ ") is not part of the alphabet (" ++ show m.alphabet ++ ")")
   | m.blank `elem` snd m.currentState.tape = Left "Blank can not be part of initial state"
   | not . null $ ((nub . snd) m.currentState.tape \\ m.alphabet) = Left ("Tape contains non-alphabet characters: (" ++ show ((nub . snd) m.currentState.tape \\ m.alphabet) ++ ")")
   | m.initialState `notElem` m.states = Left ("Initial state (" ++ show m.initialState ++ ") unkown")
