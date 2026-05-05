@@ -20,7 +20,7 @@ name:               ft-turing
 -- PVP summary:     +-+------- breaking API changes
 --                  | | +----- non-breaking API additions
 --                  | | | +--- code changes with no API change
-version:            0.1.0.0
+version:            0.1.1.0
 
 -- A short (one-line) description of the package.
 synopsis:           Project from codam-advanced | Ante-purgatory
@@ -51,7 +51,7 @@ extra-doc-files:    CHANGELOG.md
 -- extra-source-files:
 
 common warnings
-    ghc-options: -Wall
+    ghc-options: -Wall -Werror
 
 executable ft-turing
     -- Import common warning flags.
@@ -61,7 +61,7 @@ executable ft-turing
     main-is:          Main.hs
 
     -- Modules included in this executable, other than Main.
-    other-modules:    Parsing, Json
+    other-modules:    Parsing, Json, Turing
 
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:

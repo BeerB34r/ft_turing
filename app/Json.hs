@@ -13,6 +13,30 @@ data JsonValue
   | Object [(JsonValue, JsonValue)]
   | Null
 
+fromNumber :: JsonValue -> Maybe Float
+fromNumber (Number n) = Just n
+fromNumber _ = Nothing
+
+fromString :: JsonValue -> String
+fromString (String s) = s
+fromString _ = ""
+
+fromBool :: JsonValue -> Maybe Bool
+fromBool (Bool b) = Just b
+fromBool _ = Nothing
+
+fromArray :: JsonValue -> [JsonValue]
+fromArray (Array a) = a
+fromArray _ = []
+
+fromObject :: JsonValue -> [(JsonValue, JsonValue)]
+fromObject (Object o) = o
+fromObject _ = []
+
+fromNull :: JsonValue -> Maybe ()
+fromNull Null = Just ()
+fromNull _ = Nothing
+
 -- prettier printing
 
 instance Show JsonValue where
@@ -76,3 +100,10 @@ jsonValue =
     <|> jsonArray
     <|> jsonObject
     <|> jsonNull
+
+getValue :: JsonValue -> String -> [JsonValue]
+getValue (Object p) s =
+  let filterPred (String k) = (k == s)
+      filterPred _ = False
+   in map snd . filter (filterPred . fst) $ p
+getValue _ _ = []
