@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+
+info() {
+	echo "[INFO]" $@
+}
+
+fatal() {
+	echo "[FATAL]" $@
+	exit 1
+}
+
+invalid_machines() {
+	info "invalid machines"
+	find machines/ko -type f | xargs -i{} -t cabal run ft-turing -- {} "1-1="
+}
+
+functioning_machines() {
+	info "functioning machines"
+	cabal run ft-turing -- machines/unary_sub.json "111-11="
+}
+
+main() {
+	cabal build 2>&1 >/dev/null || fatal "could not build project" && info "built successfully"
+	[[ -z "$@" || "$1" = "ko" ]] && invalid_machines
+	[[ -z "$@" || "$1" = "ok" ]] && functioning_machines
+}
+
+main $@

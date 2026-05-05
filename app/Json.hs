@@ -12,6 +12,7 @@ data JsonValue
   | Array [JsonValue]
   | Object [(JsonValue, JsonValue)]
   | Null
+  deriving (Eq)
 
 fromNumber :: JsonValue -> Maybe Float
 fromNumber (Number n) = Just n

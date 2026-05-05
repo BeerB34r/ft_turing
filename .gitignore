@@ -6,6 +6,8 @@ dist-newstyle/*
 !*.cabal
 # example machines
 !*.json
+# testing
+!test
 # git stuff
 !*.md
 !LICENSE

@@ -1,7 +1,5 @@
 module Main where
 
-import Data.Bifunctor
-import Data.Char
 import Data.Either
 import Data.Maybe
 import Json
@@ -39,13 +37,6 @@ parse _ = usage >> die
 putJson :: String -> IO ()
 putJson = print . snd . fromMaybe ("", Object []) . runParser jsonValue
 
-capitalise :: String -> String
-capitalise (x : xs) =
-  let recurse (a, b) = map toLower a ++ capitalise b
-      splitSpaces = (\(a, (b, c)) -> (a ++ b, c)) . second (span isSpace) . break isSpace
-   in toUpper x : (recurse . splitSpaces) xs
-capitalise _ = []
-
 putVal :: (Show a) => JsonValue -> String -> (JsonValue -> a) -> IO ()
 putVal obj key f =
   let title = putStr . capitalise $ key ++ ": "
@@ -80,8 +71,13 @@ main = do
   (json, input) <- parse =<< getArgs
   let obj = snd . fromMaybe ("", Null) . runParser jsonValue $ json
   let machine = createMachine obj input
-  if isRight . isValid $ machine then runMachine machine else putStrLn . fromLeft "" . isValid $ machine
-  putStrLn "Goodbye"
+  if isLeft . isJsonValid $ obj
+    then
+      putStrLn . fromLeft "" . isJsonValid $ obj
+    else
+      if isLeft . isValid $ machine
+        then putStrLn . fromLeft "" . isValid $ machine
+        else print machine >> runMachine machine
 
 exit :: IO a
 exit = exitSuccess
