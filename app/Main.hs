@@ -66,10 +66,10 @@ runMachine m =
           >> printTransition
       finale = putStrLn "Stopping condition met"
    in case doTransition of
-        Right newM -> step >> runMachine newM
-        Left s
-          | s == "final" -> step >> finale
-          | otherwise -> putStrLn s
+        Right newM
+          | (state . currentState $ newM) `notElem` finals newM -> step >> runMachine newM
+          | otherwise -> step >> finale
+        Left s -> putStrLn s
 
 main :: IO ()
 main = do

@@ -219,9 +219,4 @@ iterate m =
   let newStates = concatMap (`transition` m.currentState) m.transitions
    in if null newStates
         then Left "No valid transitions!"
-        else
-          if (state . head $ newStates) `elem` m.finals
-            then
-              Left "final"
-            else
-              Right m {currentState = head newStates}
+        else Right m {currentState = head newStates}

@@ -1,0 +1,47 @@
+{
+	"name"		:	"palindrome checker",
+	"alphabet"	:	[ ".", "0", "1", "y", "n" ],
+	"blank"		:	".",
+	"states"	:	[ "check next", "run it back", "move zero", "move one", "check zero", "check one", "victory lap", "walk of shame", "success", "failure", "HALT" ],
+	"initial"	:	"check next",
+	"finals"	:	[ "HALT" ],
+
+	"transitions"	: {
+		"run it back"	: [
+			{ "read" : ".", "to_state" : "check next", "write" : ".", "action" : "RIGHT" },
+			{ "read" : "0", "to_state" : "run it back", "write" : "0", "action" : "LEFT" },
+			{ "read" : "1", "to_state" : "run it back", "write" : "1", "action" : "LEFT" }
+		],
+		"check next"	: [
+			{ "read" : ".", "to_state" : "success", "write" : ".", "action" : "RIGHT" },
+			{ "read" : "0", "to_state" : "move zero", "write" : ".", "action" : "RIGHT" },
+			{ "read" : "1", "to_state" : "move one", "write" : ".", "action" : "RIGHT" }
+		],
+		"move zero" : [
+			{ "read" : ".", "to_state" : "check zero", "write" : ".", "action" : "LEFT" },
+			{ "read" : "0", "to_state" : "move zero", "write" : "0", "action" : "RIGHT" },
+			{ "read" : "1", "to_state" : "move zero", "write" : "1", "action" : "RIGHT" }
+		],
+		"move one" : [
+			{ "read" : ".", "to_state" : "check one", "write" : ".", "action" : "LEFT" },
+			{ "read" : "0", "to_state" : "move one", "write" : "0", "action" : "RIGHT" },
+			{ "read" : "1", "to_state" : "move one", "write" : "1", "action" : "RIGHT" }
+		],
+		"check zero" : [
+			{ "read" : ".", "to_state" : "HALT", "write" : "y", "action" : "RIGHT" },
+			{ "read" : "0", "to_state" : "run it back", "write" : ".", "action" : "LEFT" },
+			{ "read" : "1", "to_state" : "failure", "write" : "1", "action" : "RIGHT" }
+		],
+		"check one" : [
+			{ "read" : ".", "to_state" : "HALT", "write" : "y", "action" : "RIGHT" },
+			{ "read" : "1", "to_state" : "run it back", "write" : ".", "action" : "LEFT" },
+			{ "read" : "0", "to_state" : "failure", "write" : "0", "action" : "RIGHT" }
+		],
+		"success"	: [
+			{ "read" : ".", "to_state" : "HALT", "write" : "y", "action" : "LEFT" }
+		],
+		"failure"	: [
+			{ "read" : ".", "to_state" : "HALT", "write" : "n", "action" : "LEFT" }
+		]
+	}
+}
