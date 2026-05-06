@@ -17,3 +17,6 @@
 
 * fifth version, it can now run arbitrary turing machines. error handling should
   now be adequate
+## 0.2.0.0 -- 2026-05-06
+
+* the tape is now potentially infinitely long

@@ -22,7 +22,7 @@ help =
     >> putStrLn "\t-v, --version\t\t\tshow program version and exit"
 
 version :: IO ()
-version = putStrLn "Haskell ft_turing 0.1.1.1"
+version = putStrLn "Haskell ft_turing 0.2.0.0"
 
 parse :: [String] -> IO (String, String)
 parse ["--help"] = help >> exit
@@ -58,7 +58,12 @@ runMachine m =
       matchingTransition = filter (not . null . (`transition` currentState m)) . transitions $ m
       printTransition = print . head $ matchingTransition
       doTransition = Turing.iterate m
-      step = printState >> printTransition
+      step =
+        printState
+          >> putStr " -> "
+          >> (putStr . showTape . currentState . fromRight m $ doTransition)
+          >> putStr " "
+          >> printTransition
       finale = putStrLn "Stopping condition met"
    in case doTransition of
         Right newM -> step >> runMachine newM

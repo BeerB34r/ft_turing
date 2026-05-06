@@ -3,6 +3,7 @@
 
 module Turing where
 
+import Control.Applicative
 import Data.Bifunctor
 import Data.Char
 import Data.Either
@@ -64,21 +65,32 @@ data Transition = Transition
 instance Show Transition where
   show = description
 
-createTransition :: String -> Char -> String -> Char -> String -> Transition
-createTransition initState c nextState w action =
+createTransition :: String -> Char -> String -> Char -> String -> Char -> Transition
+createTransition initState c nextState w action b =
   let sameState = (== initState) . state
       sameChar = (== c) . current
       isTransitionValid s = sameState s && sameChar s
       moveHead i = i + (if action == "LEFT" then -1 else 1)
       modifyTape s i = take i s ++ [w] ++ drop (i + 1) s
       doTransition s =
-        ( [ State
-              { state = nextState,
-                tape = (moveHead . fst . tape $ s, uncurry (flip modifyTape) . tape $ s)
-              }
-            | (moveHead . fst . tape $ s) < (length . snd . tape $ s)
-          ]
-        )
+        [ State
+            { state = nextState,
+              tape = (moveHead . fst . tape $ s, uncurry (flip modifyTape) . tape $ s)
+            } -- we're on the tape somewhere
+          | (moveHead . fst $ s.tape) < (length . snd $ s.tape)
+              && (moveHead . fst $ s.tape) >= 0
+        ]
+          <|> [ State
+                  { state = nextState,
+                    tape = (moveHead . fst $ s.tape, uncurry (flip modifyTape) s.tape ++ [b])
+                  } -- we walked off the right end of the tape
+                | (moveHead . fst $ s.tape) >= 0
+              ]
+          <|> [ State
+                  { state = nextState,
+                    tape = (0, b : uncurry (flip modifyTape) s.tape)
+                  } -- we walked off the left end, _always_ available
+              ]
    in Transition
         { transition = \s -> if isTransitionValid s then doTransition s else [],
           description =
@@ -93,8 +105,8 @@ createTransition initState c nextState w action =
               ++ action
         }
 
-createTransitions :: [String] -> JsonValue -> [Transition]
-createTransitions (x : xs) (Object obj) =
+createTransitions :: [String] -> JsonValue -> Char -> [Transition]
+createTransitions (x : xs) (Object obj) b =
   let currentTransitions = concatMap (fromArray . snd) . filter ((== x) . fromString . fst) $ obj -- [jsonObject]
       createSingle o =
         createTransition
@@ -103,8 +115,9 @@ createTransitions (x : xs) (Object obj) =
           (fromString . head . getValue o $ "to_state")
           (head . fromString . head . getValue o $ "write")
           (fromString . head . getValue o $ "action")
-   in map createSingle currentTransitions ++ createTransitions xs (Object obj)
-createTransitions _ _ = []
+          b
+   in map createSingle currentTransitions ++ createTransitions xs (Object obj) b
+createTransitions _ _ _ = []
 
 createMachine :: JsonValue -> String -> Machine
 createMachine obj initialTape =
@@ -118,7 +131,7 @@ createMachine obj initialTape =
           states = getStringArray "states",
           initialState = getString "initial",
           finals = getStringArray "finals",
-          transitions = createTransitions (getStringArray "states" \\ getStringArray "finals") (getVal "transitions"),
+          transitions = createTransitions (getStringArray "states" \\ getStringArray "finals") (getVal "transitions") (head . getString $ "blank"),
           currentState =
             State
               { state = fromString . getVal $ "initial",
@@ -204,7 +217,7 @@ isValid m
 iterate :: Machine -> Either String Machine
 iterate m =
   let newStates = concatMap (`transition` m.currentState) m.transitions
-   in if length newStates /= 1
+   in if null newStates
         then Left "No valid transitions!"
         else
           if (state . head $ newStates) `elem` m.finals

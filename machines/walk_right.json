@@ -1,0 +1,16 @@
+{
+	"name"		:	"walker",
+	"alphabet"	:	[ ">", ".", "<" ],
+	"blank"		:	".",
+	"states"	:	[ "walk", "HALT" ],
+	"initial"	:	"walk",
+	"finals"	:	[ "HALT" ],
+
+	"transitions"	: {
+		"walk"	: [
+			{ "read" : ">", "to_state" : "walk", "write" : ">", "action" : "RIGHT" },
+			{ "read" : "<", "to_state" : "walk", "write" : "<", "action" : "LEFT" },
+			{ "read" : ".", "to_state" : "walk", "write" : ".", "action" : "RIGHT" }
+		]
+	}
+}
