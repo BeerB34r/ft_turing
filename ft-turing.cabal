@@ -76,8 +76,8 @@ executable ft-turing
     default-language: Haskell2010
 
 executable inception-tape
-	import:           warnings
-	main-is:          Inception-tapes.hs
-	build-depends:    base ^>=4.18.3.0
-	hs-source-dirs:   app
-	default-language: Haskell2010
+    import:           warnings
+    main-is:          Inception-tapes.hs
+    build-depends:    base ^>=4.18.3.0
+    hs-source-dirs:   app
+    default-language: Haskell2010
