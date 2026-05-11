@@ -1,0 +1,19 @@
+{
+	"name"		:	"o2n+1",
+	"alphabet"	:	[ "0", ".", "y", "n" ],
+	"blank"		:	".",
+	"states"	:	[ "init", "consume", "HALT" ],
+	"initial"	:	"init",
+	"finals"	:	[ "HALT" ],
+
+	"transitions"	: {
+		"init"	: [
+			{ "read" : "0", "to_state" : "consume", "write" : "0", "action" : "RIGHT" },
+			{ "read" : ".", "to_state" : "HALT", "write" : "n", "action" : "LEFT" }
+		],
+		"consume"	: [
+			{ "read" : "0", "to_state" : "init", "write" : "0", "action" : "RIGHT" },
+			{ "read" : ".", "to_state" : "HALT", "write" : "y", "action" : "LEFT" }
+		]
+	}
+}
