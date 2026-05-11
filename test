@@ -14,9 +14,15 @@ invalid_machines() {
 	find machines/ko -type f | xargs -i{} -t cabal run ft-turing -- {} "1-1="
 }
 
+_p() {
+	echo "${1}" | tr -d "\t" | head -n 1 | cut -f 2 -d "\""
+	echo "${1}" | tr -d "\t" | grep "Current" | cut -f 4 -d ' '
+	echo "${1}" | tail -n 2
+}
+
 functioning_machines() {
 	info "functioning machines"
-	cabal run ft-turing -- machines/unary_sub.json "111-11="
+	_p "$(cabal run ft-turing -- machines/unary_sub.json "111-11=")"
 }
 
 main() {

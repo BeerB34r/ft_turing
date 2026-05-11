@@ -36,7 +36,7 @@ instance Show Machine where
         showStates = "\tStates: [\n" ++ concatMap ((++ "\n") . ("\t\t" ++) . show) m.states ++ "]\n"
         showInitial = "\tInitial: " ++ (show . initialState $ m) ++ "\n"
         showFinals = "\tFinals: [\n" ++ concatMap ((++ "\n") . ("\t\t" ++) . show) m.finals ++ "]\n"
-        showTransitions = "\tTransitions: [\n" ++ concatMap ((++ "\n") . ("\t\t" ++) . show) m.transitions ++ "]\n"
+        showTransitions = "\tTransitions " ++ (show . length) m.transitions ++ ": [\n" ++ concatMap ((++ "\n") . ("\t\t" ++) . show) m.transitions ++ "]\n"
         showCurrentState = "\tCurrent state: " ++ show m.currentState
      in showName ++ showAlphabet ++ showBlank ++ showStates ++ showInitial ++ showFinals ++ showTransitions ++ showCurrentState
 
@@ -165,6 +165,8 @@ isJsonValid =
         | otherwise = Right ()
       unknownTransitions o value = (map (fromString . fst) value \\ (map fromString . fromArray . head . getValue (Object o) $ "states"))
       getInnerValues s = map (head . (`getValue` s)) . fromArray
+      hasInnerValue s = (not . any (null . (`getValue` s)) . fromArray)
+      hasInnerValues o = all (`hasInnerValue` o) ["read", "write", "to_state", "action"]
       checkDupReads transes = getInnerValues "read" transes /= (nub . getInnerValues "read") transes
       checkInvalidRW s o transes = (nub . map fromString . getInnerValues s) transes \\ (map fromString . fromArray . head . getValue (Object o) $ "alphabet")
       checkInvalidNext o transes = (nub . map fromString . getInnerValues "to_state") transes \\ (map fromString . fromArray . head . getValue (Object o) $ "states")
@@ -173,6 +175,7 @@ isJsonValid =
       checkTransitions o = case getValue (Object o) "transitions" of
         [] -> Left "Transitions must exist"
         [Object value]
+          | not . all (hasInnerValues . snd) $ value -> Left "All transitions must contain the values \"read\", \"to_state\", \"write\", and \"action\""
           | (nub . map fst) value /= map fst value -> Left ("Transitions cannot have duplicates (" ++ show (map fst value \\ (nub . map fst) value) ++ ")")
           | any (checkDupReads . snd) value -> Left ("Transitions cannot have duplicate reads (" ++ show (concatMap bun (map (getInnerValues "read" . snd) value \\ map (nub . getInnerValues "read" . snd) value)) ++ ")")
           | not (all (null . checkInvalidRW "read" o . snd) value) -> Left ("Unknown read in transition (" ++ show (concatMap (nub . checkInvalidRW "read" o . snd) value) ++ ")")
@@ -187,6 +190,7 @@ isJsonValid =
    in \case
         (Object o)
           -- duplicates
+          | isLeft . checkTransitions $ o -> checkTransitions o
           | (nub . map fst) o /= map fst o -> Left ("Fields cannot have duplicates (" ++ show (bun $ map fst o) ++ ")")
           -- required fields
           | isLeft . fieldIsString o $ "name" -> fieldIsString o "name"
@@ -196,7 +200,6 @@ isJsonValid =
           | isLeft . fieldIsStringArray o $ "states" -> fieldIsStringArray o "states"
           | isLeft . fieldIsString o $ "initial" -> fieldIsString o "initial"
           | isLeft . fieldIsStringArray o $ "finals" -> fieldIsStringArray o "finals"
-          | isLeft . checkTransitions $ o -> checkTransitions o
           | otherwise -> Right ()
         _ -> Left "Turing machine must be provided as single JSON object"
 
