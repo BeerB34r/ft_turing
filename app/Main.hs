@@ -1,11 +1,13 @@
 module Main where
 
+import Control.Monad
 import Data.Either
 import Data.Maybe
 import Json
 import Parsing (runParser)
 import System.Environment
 import System.Exit hiding (die)
+import System.IO
 import Turing
 
 usage :: IO ()
@@ -72,17 +74,19 @@ runMachine m =
         Left s -> putStrLn s
 
 main :: IO ()
-main = do
-  (json, input) <- parse =<< getArgs
-  let obj = snd . fromMaybe ("", Null) . runParser jsonValue $ json
-  let machine = createMachine obj input
-  if isLeft . isJsonValid $ obj
-    then
-      putStrLn . fromLeft "" . isJsonValid $ obj
-    else
-      if isLeft . isValid $ machine
-        then putStrLn . fromLeft "" . isValid $ machine
-        else print machine >> runMachine machine
+main =
+  let args = parse =<< getArgs
+      input = snd <$> args
+      obj = snd . fromMaybe ("", Null) . runParser jsonValue . fst <$> args
+      machine = (createMachine <$> obj) <*> input
+      checkJson = isLeft . isJsonValid
+      checkMachine = isLeft . isValid
+      putErr = hPutStrLn stderr . fromLeft ""
+      run o m
+        | checkJson o = putErr . isJsonValid $ o
+        | checkMachine m = putErr . isValid $ m
+        | otherwise = print m >> runMachine m
+   in join ((run <$> obj) <*> machine)
 
 exit :: IO a
 exit = exitSuccess

@@ -20,9 +20,24 @@ _p() {
 	echo "${1}" | tail -n 2
 }
 
+inception() {
+	for i in $(cabal run Inception-tape); do
+		cabal run ft-turing -- machines/inception.json "$i" | tail -n 2
+	done
+}
+
 functioning_machines() {
 	info "functioning machines"
 	_p "$(cabal run ft-turing -- machines/unary_sub.json "111-11=")"
+	_p "$(cabal run ft-turing -- machines/unary_add.json "111+11")"
+	_p "$(cabal run ft-turing -- machines/palindrome.json "111000")"
+	_p "$(cabal run ft-turing -- machines/palindrome.json "101101")"
+	_p "$(cabal run ft-turing -- machines/0n1n.json "0011")"
+	_p "$(cabal run ft-turing -- machines/0n1n.json "00111")"
+	_p "$(cabal run ft-turing -- machines/o2n.json "00")"
+	_p "$(cabal run ft-turing -- machines/o2n.json "000")"
+	echo "inception: unary addition"
+	inception
 }
 
 main() {
