@@ -38,6 +38,30 @@ fromNull :: JsonValue -> Maybe ()
 fromNull Null = Just ()
 fromNull _ = Nothing
 
+isNumber :: JsonValue -> Bool
+isNumber (Number _) = True
+isNumber _ = False
+
+isString :: JsonValue -> Bool
+isString (String _) = True
+isString _ = False
+
+isBool :: JsonValue -> Bool
+isBool (Bool _) = True
+isBool _ = False
+
+isArray :: JsonValue -> Bool
+isArray (Array _) = True
+isArray _ = False
+
+isObject :: JsonValue -> Bool
+isObject (Object _) = True
+isObject _ = False
+
+isNull :: JsonValue -> Bool
+isNull Null = True
+isNull _ = False
+
 -- prettier printing
 
 instance Show JsonValue where

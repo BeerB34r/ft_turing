@@ -78,15 +78,14 @@ main =
   let args = parse =<< getArgs
       input = snd <$> args
       obj = snd . fromMaybe ("", Null) . runParser jsonValue . fst <$> args
-      machine = (createMachine <$> obj) <*> input
       checkJson = isLeft . isJsonValid
       checkMachine = isLeft . isValid
       putErr = hPutStrLn stderr . fromLeft ""
-      run o m
+      run o i
         | checkJson o = putErr . isJsonValid $ o
-        | checkMachine m = putErr . isValid $ m
-        | otherwise = print m >> runMachine m
-   in join ((run <$> obj) <*> machine)
+        | checkMachine (createMachine o i) = putErr . isValid $ createMachine o i
+        | otherwise = print (createMachine o i) >> runMachine (createMachine o i)
+   in join ((run <$> obj) <*> input)
 
 exit :: IO a
 exit = exitSuccess
