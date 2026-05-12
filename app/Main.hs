@@ -49,7 +49,7 @@ fromStarting :: [(JsonValue, JsonValue)] -> [String] -> IO ()
 fromStarting obj (x : xs) =
   let displayStarting = putStrLn x
       filtered = filter ((== x) . fromString . fst) obj
-      this = mapM_ (\a -> putStr "\t" >> print a) $ concatMap (map fromObject . fromArray . snd) filtered
+      this = mapM_ (\a -> putStr "\t" >> print a) . concatMap (map fromObject . fromArray . snd) $ filtered
       next = fromStarting obj xs
    in displayStarting >> this >> next
 fromStarting _ [] = return ()

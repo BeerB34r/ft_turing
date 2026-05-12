@@ -45,8 +45,20 @@ data State = State
     tape :: (Int, String)
   }
 
+bold :: String
+bold = "\ESC[1m"
+
+faint :: String
+faint = "\ESC[2m\STX"
+
+underline :: String
+underline = "\ESC[4m"
+
+reset :: String
+reset = "\ESC[0m"
+
 showTape :: State -> String
-showTape = ("[" ++) . (++ "]") . (\(a, b) -> a ++ "<" ++ [head b] ++ ">" ++ tail b) . uncurry splitAt . tape
+showTape = (faint ++) . ("[" ++) . (++ "]") . (\(a, b) -> a ++ reset ++ bold ++ underline ++ [head b] ++ reset ++ faint ++ tail b ++ reset) . uncurry splitAt . tape
 
 showState :: State -> String
 showState = show . state
@@ -94,15 +106,19 @@ createTransition initState c nextState w action b =
    in Transition
         { transition = \s -> if isTransitionValid s then doTransition s else [],
           description =
-            show initState
+            "("
+              ++ show initState
+              ++ ", "
+              ++ ['\'', c, '\'']
+              ++ ")"
               ++ " -> "
+              ++ "("
               ++ show nextState
-              ++ ": '"
-              ++ [c]
-              ++ "' -> '"
-              ++ [w]
-              ++ "', "
+              ++ ", "
+              ++ ['\'', w, '\'']
+              ++ ", "
               ++ action
+              ++ ")"
         }
 
 createTransitions :: [String] -> JsonValue -> Char -> [Transition]
